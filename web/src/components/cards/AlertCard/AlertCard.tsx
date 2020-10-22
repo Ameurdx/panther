@@ -17,7 +17,8 @@
  */
 
 import GenericItemCard from 'Components/GenericItemCard';
-import { Flex, Link } from 'pouncejs';
+import { Flex, Link, Text } from 'pouncejs';
+import { AlertTypesEnum } from 'Generated/schema';
 import { Link as RRLink } from 'react-router-dom';
 import SeverityBadge from 'Components/badges/SeverityBadge';
 import React from 'react';
@@ -34,7 +35,7 @@ interface AlertCardProps {
 
 const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
   return (
-    <GenericItemCard>
+    <GenericItemCard status={alert.type === AlertTypesEnum.RuleError ? 'fail' : 'pass'}>
       <GenericItemCard.Body>
         <Link
           as={RRLink}
@@ -56,6 +57,15 @@ const AlertCard: React.FC<AlertCardProps> = ({ alert }) => {
               >
                 View Rule
               </LinkButton>
+            }
+          />
+
+          <GenericItemCard.Value
+            label="Alert Type"
+            value={
+              <Text color={alert.type === AlertTypesEnum.RuleError ? 'red-500' : 'teal-100'}>
+                {alert.type === AlertTypesEnum.RuleError ? 'Rule Error' : 'Rule Match'}
+              </Text>
             }
           />
 
