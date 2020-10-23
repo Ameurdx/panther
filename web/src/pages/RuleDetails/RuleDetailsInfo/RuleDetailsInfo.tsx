@@ -53,39 +53,46 @@ const RuleDetailsInfo: React.FC<ResourceDetailsInfoProps> = ({ rule }) => {
         </Button>
       </Flex>
       <Card as="article" p={6}>
-        <Flex as="header" align="center" mb={4} spacing={4}>
-          <Heading fontWeight="bold" wordBreak="break-word" aria-describedby="rule-description">
-            {rule.displayName || rule.id}
-          </Heading>
-          <Tooltip
-            content={
-              <Flex spacing={3}>
-                <Flex direction="column" spacing={2}>
-                  <Box id="rule-id-label">Rule ID</Box>
-                  <Box id="log-types-label">Log Types</Box>
-                </Flex>
-                <Flex direction="column" spacing={2} fontWeight="bold">
-                  <Box aria-labelledby="rule-id-label">{rule.id}</Box>
-                  <Box aria-labelledby="log-types-label">
-                    {rule.logTypes.map(logType => (
-                      <Box key={logType}>{logType}</Box>
-                    ))}
-                  </Box>
-                </Flex>
-              </Flex>
-            }
+        <Flex as="header" align="center">
+          <Heading
+            fontWeight="bold"
+            wordBreak="break-word"
+            aria-describedby="rule-description"
+            flexShrink={1}
+            mr={100}
           >
-            <Icon type="info" />
-          </Tooltip>
+            {rule.displayName || rule.id}
+            <Tooltip
+              content={
+                <Flex spacing={3}>
+                  <Flex direction="column" spacing={2}>
+                    <Box id="rule-id-label">Rule ID</Box>
+                    <Box id="log-types-label">Log Types</Box>
+                  </Flex>
+                  <Flex direction="column" spacing={2} fontWeight="bold">
+                    <Box aria-labelledby="rule-id-label">{rule.id}</Box>
+                    <Box aria-labelledby="log-types-label">
+                      {rule.logTypes.map(logType => (
+                        <Box key={logType}>{logType}</Box>
+                      ))}
+                    </Box>
+                  </Flex>
+                </Flex>
+              }
+            >
+              <Icon type="info" size="medium" verticalAlign="unset" ml={2} />
+            </Tooltip>
+          </Heading>
+          <Flex spacing={2} as="ul" flexShrink={0} ml="auto">
+            <Box as="li">
+              <StatusBadge status="ENABLED" disabled={!rule.enabled} />
+            </Box>
+            <Box as="li">
+              <SeverityBadge severity={rule.severity} />
+            </Box>
+          </Flex>
         </Flex>
-        <Flex spacing={4} as="ul" mb={6}>
-          <Box as="li">
-            <StatusBadge status="ENABLED" disabled={!rule.enabled} />
-          </Box>
-          <Box as="li">
-            <SeverityBadge severity={rule.severity} />
-          </Box>
-        </Flex>
+
         <Card variant="dark" as="section" p={4} mb={4}>
           <Text id="rule-description" fontStyle={!rule.description ? 'italic' : 'normal'} mb={6}>
             {rule.description || 'No description found for rule'}

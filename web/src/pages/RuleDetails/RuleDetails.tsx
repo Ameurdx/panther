@@ -19,10 +19,12 @@
 import React from 'react';
 
 import useRouter from 'Hooks/useRouter';
-import { Alert, Box, Flex } from 'pouncejs';
-import Panel from 'Components/Panel';
+import { Alert, Box, Flex, Card, TabList, TabPanel, TabPanels, Tabs } from 'pouncejs';
+import { BorderedTab, BorderTabDivider } from 'Components/BorderedTab';
 import { extractErrorMessage } from 'Helpers/utils';
 import withSEO from 'Hoc/withSEO';
+import invert from 'lodash/invert';
+import useUrlParams from 'Hooks/useUrlParams';
 import { DEFAULT_LARGE_PAGE_SIZE } from 'Source/constants';
 import useInfiniteScroll from 'Hooks/useInfiniteScroll';
 import ErrorBoundary from 'Components/ErrorBoundary';
@@ -34,8 +36,24 @@ import RuleDetailsInfo from './RuleDetailsInfo';
 import { useRuleDetails } from './graphql/ruleDetails.generated';
 import { useListAlertsForRule } from './graphql/listAlertsForRule.generated';
 
+interface RuleDetailsPageUrlParams {
+  section?: 'details' | 'matches' | 'errors';
+}
+
+const sectionToTabIndex: Record<RuleDetailsPageUrlParams['section'], number> = {
+  details: 0,
+  matches: 1,
+  errors: 2,
+};
+
+const tabIndexToSection = invert(sectionToTabIndex) as Record<
+  number,
+  RuleDetailsPageUrlParams['section']
+>;
+
 const RuleDetailsPage = () => {
   const { match } = useRouter<{ id: string }>();
+  const { urlParams, updateUrlParams } = useUrlParams<RuleDetailsPageUrlParams>();
   const {
     error: ruleDetailsError,
     data: ruleDetailsData,
@@ -121,12 +139,30 @@ const RuleDetailsPage = () => {
   const hasMoreAlerts = !!listAlertsData.alerts.lastEvaluatedKey;
 
   return (
-    <article>
-      <ErrorBoundary>
-        <RuleDetailsInfo rule={ruleDetailsData.rule} />
-      </ErrorBoundary>
-      <Box mt={5} mb={6}>
-        <Panel title="Alerts">
+    <Box as="article">
+      <Flex direction="column" spacing={6} my={6}>
+        <ErrorBoundary>
+          <RuleDetailsInfo rule={ruleDetailsData.rule} />
+        </ErrorBoundary>
+        <Card position="relative">
+          <Tabs
+            index={sectionToTabIndex[urlParams.section] || 0}
+            onChange={index => updateUrlParams({ section: tabIndexToSection[index] })}
+          >
+            <Box px={2}>
+              <TabList>
+                <BorderedTab>Details</BorderedTab>
+                <BorderedTab>Rule Matches</BorderedTab>
+                <BorderedTab>Rule Errors</BorderedTab>
+              </TabList>
+              <BorderTabDivider />
+              <TabPanels>
+                <TabPanel data-testid="rule-details-tabpanel">1</TabPanel>
+                <TabPanel data-testid="rule-matches-tabpanel">2</TabPanel>
+                <TabPanel data-testid="rule-errors-tabpanel">3</TabPanel>
+              </TabPanels>
+            </Box>
+          </Tabs>
           <ErrorBoundary>
             {hasAnyAlerts && (
               <Flex direction="column" spacing={2}>
@@ -142,9 +178,9 @@ const RuleDetailsPage = () => {
               </Box>
             )}
           </ErrorBoundary>
-        </Panel>
-      </Box>
-    </article>
+        </Card>
+      </Flex>
+    </Box>
   );
 };
 
